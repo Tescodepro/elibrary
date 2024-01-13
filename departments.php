@@ -10,7 +10,7 @@
     <meta description="ai4fs" content="ai4fs">
     <meta description="artificial Intelligence" content="artificial Intelligence for female in stem">
     <meta description="female in STEM" content="female in stem">
-    <title>E-library | Files</title>
+    <title>E-library | Department</title>
     <!-- Fav Icon -->
     <link rel="icon" href="assets/images/AI4FS-icon.png" sizes="37x37" type="image/x-icon">
     <!-- Google Fonts -->
@@ -161,7 +161,9 @@
         <!-- banner-section -->
         <section class="banner-style-two mt-5 mb-5" id="home">
             <div class="container">
-                <h1>Files in Folder Selected</h1>
+                <h1>College Selected:
+                    <?php echo $_GET['college']; ?>
+                </h1>
 
                 <div class="row">
                     <div class="col-sm-12 tab-content no-bg no-border">
@@ -169,72 +171,23 @@
 
                             <?php
 
-                            $folder = $_GET['folder'];
-                            $files = scandir($folder);
-
-                            function formatBytes($bytes)
-                            {
-                                $units = array("B", "KB", "MB", "GB", "TB");
-                                $bytes = max($bytes, 0);
-                                $pow = floor(($bytes ? log($bytes) : 0) / log(1024));
-                                $pow = min($pow, count($units) - 1);
-                                $bytes /= pow(1024, $pow);
-                                return round($bytes, 2) . " " . $units[$pow];
-                            }
-
+                            $college = 'repository/' . $_GET['college'];
+                            $items = scandir($college);
                             $count = 0;
+                            $departments = array_diff($items, ['.', '..']);
 
-                            foreach ($files as $file) {
-                                if ($file != "." && $file != ".." ) {
-                                    $filePath = $folder . "/" . $file;
-                                    $fileType = explode(".", $file);
-                                    
-                                    $fileSize = filesize($filePath);
-                                    $formattedSize = formatBytes($fileSize);
-
-                                    $imageExtensions = array("jpg", "jpeg", "png", "gif", "bmp", "tiff", "webp", "ico");
-
-                                    if ($fileType[1] == 'xlsx' or $fileType[1] == 'xls') {
-                                        $icon = 'fa fa-file-excel-o text-success';
-                                    } elseif ($fileType[1] == 'pdf') {
-                                        $icon = 'fa fa-file-pdf-o text-danger';
-                                    } elseif ($fileType[1] == 'docx' or $fileType[1] == 'doc') {
-                                        $icon = 'fa fa-file-word-o text-info';
-                                    } elseif ($fileType[1] == 'ppt') {
-                                        $icon = 'fa fa-file-powerpoint-o text-info';
-                                    } elseif ($fileType[1] == 'mp4') {
-                                        $icon = 'fa fa-file-video-o text-info';
-                                    } elseif (in_array(strtolower($fileType[1]), $imageExtensions)) {
-                                        $icon = 'fa fa-file-image-o text-info';
-                                    } else {
-                                        $icon = 'fa fa-file text-secondary';
-                                    }
-
-                                    $count++;
-
+                            // Display the list of subfolders
+                            
+                            foreach ($departments as $department) {
+                                if (is_dir($college . '/' . $department)) {
                                     echo "<div class='document success'>
-                                        <div class='document-body'>
-                                            <i class='$icon'></i>
-                                        </div>
                                         <div class='document-footer'>
-                                            <span class='document-name'> $file </span>
-                                            <span class='document-description'> $fileSize $formattedSize </span>
+                                            <span class='document-name'> $department </span>
                                         </div><br>
                                         <center>
-                                            <button type='button' class='btn btn-sm btn-success' data-toggle='modal' data-target='.bd-example-modal-lg$count'>Open the document </button>
+                                            <a href=books.php?file=".$college."/".$department." class='btn btn-sm btn-success' >Enter $department </a>
                                         </center><br>
                                     </div>";
-
-                                    echo '<div class="modal fade bd-example-modal-lg' . $count . '" tabindex="-1" role="dialog" aria-labelledby="myLargeModalLabel" aria-hidden="true">
-                                        <div class="modal-dialog modal-lg">
-                                            <div class="modal-content">
-                                                <div class="ratio ratio-16x9">
-                                                    <h2>' . $file . '</h2><hr>
-                                                    <iframe src="' . $filePath . '" width="800" height="600"></iframe>
-                                                </div>
-                                            </div>
-                                        </div>
-                                    </div>';
                                 }
                             }
                             ?>

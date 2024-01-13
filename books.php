@@ -10,7 +10,7 @@
     <meta description="ai4fs" content="ai4fs">
     <meta description="artificial Intelligence" content="artificial Intelligence for female in stem">
     <meta description="female in STEM" content="female in stem">
-    <title>E-library | Home</title>
+    <title>E-library | Files</title>
     <!-- Fav Icon -->
     <link rel="icon" href="assets/images/AI4FS-icon.png" sizes="37x37" type="image/x-icon">
     <!-- Google Fonts -->
@@ -32,6 +32,10 @@
     <link
         href="https://fonts.googleapis.com/css2?family=Poppins:ital,wght@0,400;0,500;0,600;0,700;0,800;0,900;1,100&display=swap"
         rel="stylesheet">
+    <link href="https://maxcdn.bootstrapcdn.com/font-awesome/4.3.0/css/font-awesome.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="assets/css/file.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.0.0/dist/css/bootstrap.min.css"
+        integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm" crossorigin="anonymous">
 </head>
 
 <!-- page wrapper -->
@@ -55,7 +59,7 @@
                             <nav class="main-menu navbar-expand-md navbar-light">
                                 <div class="collapse navbar-collapse show clearfix" id="navbarSupportedContent">
                                     <ul class="navigation clearfix">
-                                        <li class="current"><a href="#home">Home</a></li>
+                                        <li class="current"><a href="index.php">Home</a></li>
                                     </ul>
                                 </div>
                             </nav>
@@ -155,59 +159,103 @@
         <!-- End Mobile Menu -->
 
         <!-- banner-section -->
-        <section class="banner-style-two" id="home">
-            <div class="auto-container">
-                <div class="clearfix row">
-                    <div
-                        class="col-lg-6 col-md-12 col-sm-12 content-column d-flex flex-column justify-content-center align-items-center">
-                        <div class="content-box">
-                            <h2>E-Library</h2>
-                            <h4>Welcome to the Summit University Offa e-library, a digital gateway to knowledge and
-                                academic excellence.</h4>
-                            <p>Our e-library is designed to be a dynamic and resourceful hub, providing students,
-                                faculty, and researchers with easy access to a wealth of information. With a commitment
-                                to fostering a culture of learning and innovation, Summit University Offa's e-library
-                                offers a diverse collection of digital resources, e-books, academic journals, and
-                                multimedia materials. Explore the boundless world of knowledge at your fingertips, where
-                                education meets technology for an enriching academic experience. Discover, learn, and
-                                excel with Summit University Offa's e-library.</p>
-                        </div>
-                    </div>
-                    <div class="col-lg-6 col-md-12 col-sm-12 image-column">
-                        <div class="pt-5 pb-5" style="margin-top: 160px;">
-                            <img src="./assets/images/elibrary.webp" alt="" width="100%" class="rounded-lg" />
-                        </div>
+        <section class="banner-style-two mt-5 mb-5" id="home">
+            <div class="container">
+                <h1><?php
+                    $fileParam = $_GET['file'];
+                    if($_GET['file'] == 'repository/Journals'){
+                        echo 'Available Journals';
+                    }else{
+                        $fileParts = explode('/', $fileParam);
+                        $desiredValue = $fileParts[2];
+                        echo 'Available E-Books for '.$desiredValue.' Department';
+                    }
+                ?></h1>
 
+                <div class="row">
+                    <div class="col-sm-12 tab-content no-bg no-border">
+                        <div class="tab-pane active documents documents-panel">
+
+                            <?php
+
+                            $folder =  $_GET['file'];
+                            $files = scandir($folder);
+
+                            function formatBytes($bytes)
+                            {
+                                $units = array("B", "KB", "MB", "GB", "TB");
+                                $bytes = max($bytes, 0);
+                                $pow = floor(($bytes ? log($bytes) : 0) / log(1024));
+                                $pow = min($pow, count($units) - 1);
+                                $bytes /= pow(1024, $pow);
+                                return round($bytes, 2) . " " . $units[$pow];
+                            }
+
+                            $count = 0;
+
+                            foreach ($files as $file) {
+                                if ($file != "." && $file != ".." ) {
+                                    $filePath = $folder . "/" . $file;
+                                    $fileType = explode(".", $file);
+                                    
+                                    $fileSize = filesize($filePath);
+                                    $formattedSize = formatBytes($fileSize);
+
+                                    $imageExtensions = array("jpg", "jpeg", "png", "gif", "bmp", "tiff", "webp", "ico");
+
+                                    if ($fileType[1] == 'xlsx' or $fileType[1] == 'xls') {
+                                        $icon = 'fa fa-file-excel-o text-success';
+                                    } elseif ($fileType[1] == 'pdf') {
+                                        $icon = 'fa fa-file-pdf-o text-danger';
+                                    } elseif ($fileType[1] == 'docx' or $fileType[1] == 'doc') {
+                                        $icon = 'fa fa-file-word-o text-info';
+                                    } elseif ($fileType[1] == 'ppt') {
+                                        $icon = 'fa fa-file-powerpoint-o text-info';
+                                    } elseif ($fileType[1] == 'mp4') {
+                                        $icon = 'fa fa-file-video-o text-info';
+                                    } elseif (in_array(strtolower($fileType[1]), $imageExtensions)) {
+                                        $icon = 'fa fa-file-image-o text-info';
+                                    } else {
+                                        $icon = 'fa fa-file text-secondary';
+                                    }
+
+                                    $count++;
+
+                                    echo "<div class='document success'>
+                                        <div class='document-body'>
+                                            <i class='$icon'></i>
+                                        </div>
+                                        <div class='document-footer'>
+                                            <span class='document-name'> $file </span>
+                                            <span class='document-description'> $fileSize $formattedSize </span>
+                                        </div><br>
+                                        <center>
+                                            <a href='$filePath' target='_blank' class='btn btn-sm btn-success'>Open the document </a>
+                                        </center><br>
+                                    </div>";
+
+                                    // echo '<div class="modal fade bd-example-modal-lg' . $count . '" tabindex="-1" role="dialog" aria-labelledby="myLargeModalLabel" aria-hidden="true">
+                                    //     <div class="modal-dialog modal-lg">
+                                    //         <div class="modal-content">
+                                    //             <div class="ratio ratio-16x9">
+                                    //                 <h2>' . $file . '</h2><hr>
+                                    //                 <iframe src="' . $filePath . '" width="800" height="600"></iframe>
+                                    //             </div>
+                                    //         </div>
+                                    //     </div>
+                                    // </div>';
+                                }
+                            }
+                            ?>
+
+
+
+                        </div>
                     </div>
                 </div>
             </div>
         </section>
         <!-- banner-section end -->
-
-        <!-- Login Section -->
-        <section id="about">
-            <div class="login-section">
-                <h2>E-Library</h2>
-                <p>Click the below button to access folder material</p>
-                <?php
-
-                $folderPath = 'repository';
-                // Use scandir to get the list of items (files and directories) in the folder
-                $items = scandir($folderPath);
-                // Filter out "." and ".." which represent the current and parent directories
-                $subfolders = array_diff($items, ['.', '..']);
-                // Display the list of subfolders
-                foreach ($subfolders as $subfolder) {
-                    if (is_dir($folderPath . '/' . $subfolder)) {
-                ?>
-                <a href="departments.php?college=<?php echo $subfolder; ?>" class="login-btn"><?php echo $subfolder; ?></a>
-                <?php
-                    }
-                }
-                ?>
-                <a href="books.php?file=repository/Journals" class="login-btn">Journals</a>
-            </div>
-        </section>
 
         <!-- main-footer -->
         <footer class="main-footer footer-style-two"></footer>
@@ -241,7 +289,15 @@
         <script src="assets/js/bxslider.js"></script>
         <!-- main-js -->
         <script src="assets/js/script.js"></script>
-
+        <script src="https://code.jquery.com/jquery-3.2.1.slim.min.js"
+            integrity="sha384-KJ3o2DKtIkvYIK3UENzmM7KCkRr/rE9/Qpg6aAZGJwFDMVNA/GpGFF93hXpG5KkN"
+            crossorigin="anonymous"></script>
+        <script src="https://cdn.jsdelivr.net/npm/popper.js@1.12.9/dist/umd/popper.min.js"
+            integrity="sha384-ApNbgh9B+Y1QKtv3Rn7W3mgPxhU9K/ScQsAP7hUibX39j7fakFPskvXusvfa0b4Q"
+            crossorigin="anonymous"></script>
+        <script src="https://cdn.jsdelivr.net/npm/bootstrap@4.0.0/dist/js/bootstrap.min.js"
+            integrity="sha384-JZR6Spejh4U02d8jOt6vLEHfe/JQGiRRSQQxSfFWpi1MquVdAyjUar5+76PVCmYl"
+            crossorigin="anonymous"></script>
         <script>
             document.addEventListener('DOMContentLoaded', function () {
                 const faqQuestions = document.querySelectorAll('.faq-question');
